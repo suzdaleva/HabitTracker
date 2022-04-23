@@ -1,5 +1,6 @@
 package com.manicpixie.habittracker.util
 
+import android.content.Context
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewTreeObserver
@@ -17,8 +18,12 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
+import java.util.*
+import com.manicpixie.habittracker.R
 
 @Composable
 fun dpToSp(dp: Dp) = with(LocalDensity.current) { dp.toSp() }
@@ -31,11 +36,27 @@ inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier
     }
 }
 
+class Constants {
+    companion object {
+        const val PAGESIZE = 7
+    }
+}
 
-fun enteredText(value: String, textFieldState: TextFieldState): TextFieldState {
+fun enteredPlainText(value: String, textFieldState: TextFieldState): TextFieldState {
     return textFieldState.copy(text = value)
 }
 
+fun enteredNumericText(value: String, textFieldState: TextFieldState): TextFieldState {
+    return textFieldState.copy(text = if (value.isDigitsOnly()) value else textFieldState.text)
+}
+
+
+fun Calendar.setMidnight() = this.apply {
+    set(Calendar.HOUR_OF_DAY, 0)
+    set(Calendar.MINUTE, 0)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+}
 
 fun changeFocus(
     focusState: FocusState,
@@ -129,4 +150,49 @@ fun Modifier.clearFocusOnKeyboardDismiss(): Modifier = composed {
             }
         }
     }
+}
+
+
+@Composable
+fun setTextForDays(numberOfDays: String): String {
+    return when {
+        numberOfDays.isBlank() -> stringResource(id = R.string.day_first_form)
+        numberOfDays.endsWith("11") || numberOfDays.endsWith("12") || numberOfDays.endsWith("13") || numberOfDays.endsWith(
+            "14"
+        ) -> stringResource(id = R.string.day_third_form)
+        numberOfDays.endsWith('1') -> stringResource(id = R.string.day_first_form)
+        numberOfDays.endsWith('2') || numberOfDays.endsWith('3') || numberOfDays.endsWith('4') -> stringResource(id = R.string.day_second_form)
+        else -> stringResource(id = R.string.day_third_form)
+    }
+}
+
+
+
+@Composable
+fun setTextForRepetitions(numberOfRepetitions: String): String {
+    return when {
+        numberOfRepetitions.endsWith("11") || numberOfRepetitions.endsWith("12") || numberOfRepetitions.endsWith(
+            "13"
+        ) || numberOfRepetitions.endsWith("14") -> stringResource(id = R.string.count_first_form)
+        numberOfRepetitions.endsWith('2') || numberOfRepetitions.endsWith('3') || numberOfRepetitions.endsWith(
+            '4'
+        ) -> stringResource(id = R.string.count_second_form)
+        else -> stringResource(id = R.string.count_first_form)
+    }
+}
+
+fun setTextForRepetitions(numberOfRepetitions: String, context: Context): String {
+    return when {
+        numberOfRepetitions.endsWith("11") || numberOfRepetitions.endsWith("12") || numberOfRepetitions.endsWith(
+            "13"
+        ) || numberOfRepetitions.endsWith("14") -> context.getString(R.string.count_first_form)
+        numberOfRepetitions.endsWith('2') || numberOfRepetitions.endsWith('3') || numberOfRepetitions.endsWith(
+            '4'
+        ) -> context.getString(R.string.count_second_form)
+        else -> context.getString(R.string.count_first_form)
+    }
+}
+
+fun formatPercentage(value: Float): String {
+    return String.format("%.2f", value).replace(',', '.') + "%"
 }

@@ -1,17 +1,23 @@
 package com.manicpixie.habittracker.data.local
 
 import androidx.room.TypeConverter
+import com.google.gson.Gson
+
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
 
 class Converters {
-    @TypeConverter
-    fun listToString(value: List<Int>): String = value.joinToString(separator = ".")
 
     @TypeConverter
-    fun stringToList(value: String): List<Int> {
-        val stringList = value.split(".")
-        return listOf(
-            stringList[1].toInt(), stringList[2].toInt()
-        )
+    fun fromString(value: String?): Map<Long?, Int?>? {
+        val mapType: Type = object : TypeToken<Map<Long?, Int?>?>() {}.type
+        return Gson().fromJson(value, mapType)
+    }
+
+    @TypeConverter
+    fun fromStringMap(map: Map<Long?, Int?>?): String? {
+        val gson = Gson()
+        return gson.toJson(map)
     }
 }

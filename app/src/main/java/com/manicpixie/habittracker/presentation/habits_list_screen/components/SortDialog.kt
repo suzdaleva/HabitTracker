@@ -1,7 +1,6 @@
 package com.manicpixie.habittracker.presentation.create_edit_screen.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -12,10 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.manicpixie.habittracker.domain.util.HabitOrder
@@ -24,27 +22,28 @@ import com.manicpixie.habittracker.ui.theme.White
 import com.manicpixie.habittracker.util.AppButton
 import com.manicpixie.habittracker.util.dpToSp
 import com.manicpixie.habittracker.util.drawColoredShadow
-import com.manicpixie.habittracker.util.noRippleClickable
-
+import com.manicpixie.habittracker.R
 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SortDialog(
     habitOrder: HabitOrder,
-    onCancel:() -> Unit,
-    onOK:(HabitOrder) -> Unit
-){
+    onCancel: () -> Unit,
+    onOK: (HabitOrder) -> Unit
+) {
 
     val selectedOrder = remember {
         mutableStateOf(habitOrder)
     }
+
     Dialog(
         onDismissRequest = onCancel,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
 
         Card(
+            backgroundColor = White,
             elevation = 0.dp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -66,22 +65,28 @@ fun SortDialog(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "Сортировать по:",
+                    text = stringResource(id = R.string.sort_by),
                     color = PrimaryBlack,
                     style = MaterialTheme.typography.h4.copy(
                         fontSize = dpToSp(dp = 24.dp)
                     ),
                 )
                 Column() {
-                    SortRadioButton(text = "дате создания", selected = selectedOrder.value == HabitOrder.ByDate, onSelect = { selectedOrder.value = HabitOrder.ByDate })
+                    SortRadioButton(
+                        text = stringResource(id = R.string.sort_by_date),
+                        selected = selectedOrder.value == HabitOrder.ByDate,
+                        onSelect = { selectedOrder.value = HabitOrder.ByDate })
                     Spacer(modifier = Modifier.height(8.dp))
-                    SortRadioButton(text = "приоритету", selected = selectedOrder.value  == HabitOrder.ByPriority, onSelect = { selectedOrder.value = HabitOrder.ByPriority })
+                    SortRadioButton(
+                        text = stringResource(id = R.string.sort_by_priority),
+                        selected = selectedOrder.value == HabitOrder.ByPriority,
+                        onSelect = { selectedOrder.value = HabitOrder.ByPriority })
                 }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     AppButton(
                         height = 33.dp,
                         width = 100.dp,
-                        buttonText = "Отмена",
+                        buttonText = stringResource(id = R.string.sort_cancel_button),
                         backgroundColor = PrimaryBlack,
                         fontColor = White,
                         onClick = onCancel,
@@ -93,11 +98,13 @@ fun SortDialog(
                     AppButton(
                         height = 33.dp,
                         width = 60.dp,
-                        buttonText = "OK",
+                        buttonText = stringResource(id = R.string.sort_ok_button),
                         backgroundColor = Color.Transparent,
                         fontColor = PrimaryBlack,
-                        onClick = { onOK(selectedOrder.value)
-                            onCancel()},
+                        onClick = {
+                            onOK(selectedOrder.value)
+                            onCancel()
+                        },
                         fontSize = 14.dp,
                         letterSpacing = 0.03f,
                         borderWidth = 1.2.dp

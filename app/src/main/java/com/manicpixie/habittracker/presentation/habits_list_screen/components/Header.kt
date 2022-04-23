@@ -8,8 +8,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.manicpixie.habittracker.R
@@ -33,7 +33,7 @@ fun Header(
             modifier = Modifier
                 .padding(start = 20.dp)
                 .align(Alignment.CenterStart),
-            text = "Habit".uppercase(),
+            text = stringResource(id = R.string.habits_screen_header).uppercase(),
             style = MaterialTheme.typography.caption,
             fontSize = dpToSp(dp = 27.dp)
         )
@@ -48,7 +48,7 @@ fun Header(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.search_icon),
-                    contentDescription = "Search"
+                    contentDescription = stringResource(id = R.string.search_content_description)
                 )
             }
             Spacer(modifier = Modifier.width(15.dp))
@@ -58,7 +58,7 @@ fun Header(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.sort_icon),
-                    contentDescription = "Sort"
+                    contentDescription = stringResource(id = R.string.sort_content_description)
                 )
             }
         }

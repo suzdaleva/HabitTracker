@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import com.manicpixie.habittracker.ui.theme.PrimaryBlack
 import com.manicpixie.habittracker.util.dpToSp
 
@@ -25,19 +24,25 @@ fun SortRadioButton(
     modifier: Modifier = Modifier
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(modifier = modifier.size(15.dp), selected = selected , onClick = onSelect, colors = RadioButtonDefaults.colors(
-            selectedColor = PrimaryBlack,
-            unselectedColor = PrimaryBlack
-        )
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            modifier = modifier.size(15.dp),
+            selected = selected,
+            onClick = onSelect,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = PrimaryBlack,
+                unselectedColor = PrimaryBlack
+            )
         )
         Spacer(modifier = Modifier.width(20.dp))
         Text(
             color = PrimaryBlack,
             text = text,
             style = MaterialTheme.typography.h4.copy(
-            fontSize = dpToSp(dp = 18.dp),
-        ))
+                fontSize = dpToSp(dp = 18.dp),
+            )
+        )
     }
 
 }

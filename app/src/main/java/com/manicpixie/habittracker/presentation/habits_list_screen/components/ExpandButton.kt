@@ -13,19 +13,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.manicpixie.habittracker.R
 import com.manicpixie.habittracker.ui.theme.PrimaryBlack
-import com.manicpixie.habittracker.ui.theme.White
 import com.manicpixie.habittracker.util.noRippleClickable
-import kotlin.math.exp
+
 
 
 @Composable
 fun ExpandButton(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     expanded: Boolean,
-    onClick:() -> Unit
+    onClick: () -> Unit
 ) {
 
     Box(
@@ -34,13 +34,15 @@ fun ExpandButton(
             .border(width = 1.dp, color = PrimaryBlack, shape = CircleShape)
             .clip(CircleShape)
             .noRippleClickable { onClick() }
-            .background(Color.Transparent)
-        ,
+            .background(Color.Transparent),
         contentAlignment = Alignment.Center
     ) {
         Image(
-            modifier = Modifier.size(14.dp).rotate(if(expanded) 180f else 0f),
+            modifier = Modifier
+                .size(14.dp)
+                .rotate(if (expanded) 180f else 0f),
             painter = painterResource(id = R.drawable.down_arrow),
-            contentDescription = "Expand button")
+            contentDescription = stringResource(id = R.string.expand_button_description)
+        )
     }
 }

@@ -5,7 +5,7 @@ import com.manicpixie.habittracker.data.local.entity.HabitEntity
 import com.manicpixie.habittracker.presentation.create_edit_screen.components.HabitType
 
 
-sealed class CreateEditEvent{
+sealed class CreateEditEvent {
     data class EnteredHabitTitle(val value: String) : CreateEditEvent()
     data class ChangeHabitTitleFocus(val focusState: FocusState) : CreateEditEvent()
     data class EnteredHabitDescription(val value: String) : CreateEditEvent()
@@ -16,8 +16,8 @@ sealed class CreateEditEvent{
     data class ChangeNumberOfRepetitionsFocus(val focusState: FocusState) : CreateEditEvent()
     data class EnteredNumberOfDays(val value: String) : CreateEditEvent()
     data class ChangeNumberOfDaysFocus(val focusState: FocusState) : CreateEditEvent()
-    object SaveHabit: CreateEditEvent()
-    object DeleteHabit: CreateEditEvent()
+    object SaveHabit : CreateEditEvent()
+    object DeleteHabit : CreateEditEvent()
 }
 
 

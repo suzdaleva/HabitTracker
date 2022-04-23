@@ -1,7 +1,6 @@
 package com.manicpixie.habittracker.presentation.create_edit_screen.components
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -14,10 +13,7 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import com.manicpixie.habittracker.ui.theme.PrimaryBlack
 import com.manicpixie.habittracker.util.TextFieldState
 import com.manicpixie.habittracker.util.clearFocusOnKeyboardDismiss
@@ -34,10 +30,11 @@ fun FrequencyInputField(
     textStyle: TextStyle = TextStyle(),
     label: String
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally){
-        Box(modifier = Modifier.border(width = 1.dp, color = PrimaryBlack),
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier.border(width = 1.dp, color = PrimaryBlack),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             BasicTextField(
                 value = textFieldState.text,
                 cursorBrush = SolidColor(PrimaryBlack),

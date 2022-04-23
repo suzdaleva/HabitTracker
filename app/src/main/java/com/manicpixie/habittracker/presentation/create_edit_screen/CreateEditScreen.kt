@@ -13,10 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.manicpixie.habittracker.R
 import com.manicpixie.habittracker.data.local.entity.HabitEntity
 import com.manicpixie.habittracker.domain.model.Habit
 import com.manicpixie.habittracker.presentation.create_edit_screen.components.*
@@ -24,6 +26,7 @@ import com.manicpixie.habittracker.presentation.destinations.HabitsListScreenDes
 import com.manicpixie.habittracker.ui.theme.*
 import com.manicpixie.habittracker.util.AppButton
 import com.manicpixie.habittracker.util.AppSnackBar
+import com.manicpixie.habittracker.util.UiEvent
 import com.manicpixie.habittracker.util.dpToSp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -33,7 +36,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Destination
 @Composable
 fun CreateEditScreen(
-    habit: HabitEntity?,
+    habit: Habit?,
     navigator: DestinationsNavigator,
     createEditViewModel: CreateEditViewModel = hiltViewModel()
 ) {
@@ -44,19 +47,20 @@ fun CreateEditScreen(
     val habitPriority = createEditViewModel.habitPriority.value
     val numberOfRepetitions = createEditViewModel.numberOfRepetitions.value
     val numberOfDays = createEditViewModel.numberOfDays.value
-    val averageFrequency = createEditViewModel.averageFrequency.value
-    val backgroundColor by animateColorAsState(if (habitType == HabitType.Good) White else White)
+    val count = createEditViewModel.count.value
+    val numberOfCheckedDays = createEditViewModel.numberOfCheckedDays.value
+    val averagePerformance = createEditViewModel.averagePerformance.value
 
     LaunchedEffect(true) {
         createEditViewModel.eventFlow.collectLatest { event ->
             when (event) {
-                is CreateEditViewModel.UiEvent.ShowSnackBar -> {
+                is UiEvent.ShowSnackBar -> {
                     snackbarHostState.value.showSnackbar(
                         message = event.message,
                         actionLabel = event.buttonText
                     )
                 }
-                is CreateEditViewModel.UiEvent.SaveNote -> {
+                is UiEvent.SaveNote -> {
                     navigator.navigate(HabitsListScreenDestination())
                 }
             }
@@ -66,64 +70,16 @@ fun CreateEditScreen(
 
 
     Scaffold(
+        backgroundColor = White,
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .background(White)
-                    .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AppButton(
-                    height = 38.dp,
-                    width = 142.dp,
-                    buttonText = "Удалить".uppercase(),
-                    backgroundColor = PrimaryBlack,
-                    fontColor = White,
-                    onClick = {
-                        createEditViewModel.onEvent(CreateEditEvent.DeleteHabit)
-                        navigator.navigate(HabitsListScreenDestination())
-                    },
-                    fontSize = 18.dp,
-                    letterSpacing = 0.07f,
-                    borderWidth = 1.5.dp
-                )
-
-                AppButton(
-                    height = 38.dp,
-                    width = 152.dp,
-                    buttonText = "Сохранить".uppercase(),
-                    backgroundColor = White,
-                    fontColor = PrimaryBlack,
-                    onClick = { createEditViewModel.onEvent(CreateEditEvent.SaveHabit) },
-                    fontSize = 18.dp,
-                    letterSpacing = 0.07f,
-                    borderWidth = 1.5.dp
-                )
-            }
+            CreateEditBottomBar(
+                onDelete = { createEditViewModel.onEvent(CreateEditEvent.DeleteHabit) },
+                onSave = { createEditViewModel.onEvent(CreateEditEvent.SaveHabit) },
+                modifier = Modifier.fillMaxWidth()
+            )
         },
         topBar = {
-            Box(
-                modifier = Modifier
-                    .height(70.dp)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Habit".uppercase(),
-                    style = MaterialTheme.typography.caption,
-                    fontSize = dpToSp(dp = 27.dp)
-                )
-                Spacer(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .height(1.6.dp)
-                        .fillMaxWidth()
-                        .background(PrimaryBlack)
-                )
-            }
+            CreateEditTopBar(modifier = Modifier.fillMaxWidth())
         },
         snackbarHost = {
             SnackbarHost(
@@ -135,17 +91,7 @@ fun CreateEditScreen(
             )
         }
     ) {
-
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawCircle(
-                Brush.radialGradient(
-                    0.0f to GradientCyan,
-                    0.7f to GradientLemon,
-                    1.0f to White,
-                    center = Offset(this.size.width - 100f, -350f)
-                ), center = Offset(this.size.width - 100f, -350f)
-            )
-        }
+        CreateEditBackgroundGradient(modifier = Modifier.fillMaxSize())
 
         Column(
             modifier = Modifier
@@ -197,7 +143,6 @@ fun CreateEditScreen(
 
                 TypeTabRow(
                     modifier = Modifier.padding(start = 40.dp),
-                    backgroundColor = backgroundColor,
                     habitType = habitType,
                     onTabSelected = { createEditViewModel.onEvent(CreateEditEvent.SetHabitType(it)) }
                 )
@@ -259,7 +204,8 @@ fun CreateEditScreen(
                         )
                     },
                     textStyle = MaterialTheme.typography.h4.copy(
-                        fontSize = dpToSp(dp = 19.dp)
+                        fontSize = dpToSp(dp = 19.dp),
+                        lineHeight = 1.1.em
                     )
                 )
 
@@ -271,9 +217,9 @@ fun CreateEditScreen(
                         fontSize = dpToSp(dp = 14.dp),
                         letterSpacing = 0.02.em
                     ),
-                    numberOfDays = numberOfRepetitions.hint.toInt(),
-                    numberOfTimes = numberOfDays.hint.toInt(),
-                    performance = averageFrequency
+                    numberOfDays = numberOfCheckedDays,
+                    numberOfTimes = count,
+                    performance = averagePerformance
                 )
             }
         }

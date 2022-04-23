@@ -1,3 +1,55 @@
 <resources>
     <string name="app_name">HabitTracker</string>
+    <string name="app_title">HABIT</string>
+    <string name="habits_screen_header">habits</string>
+    <string name="habit_screen_header">habits</string>
+    <string name="search_content_description">Search</string>
+    <string name="sort_content_description">Sort</string>
+    <string name="expand_button_description">Expand button</string>
+    <string name="down_button_description">Down</string>
+    <string name="dismiss_button_description">Dismiss</string>
+    <string name="snackbar_button_text">OK</string>
+    <string name="negative_type_tag">negative</string>
+    <string name="positive_type_tag">positive</string>
+    <string name="edit_button_text">Редактировать</string>
+    <string name="perform_button_text">Выполнить</string>
+    <string name="create_button_text">Создать</string>
+    <string name="delete_button_text">Удалить</string>
+    <string name="save_button_text">Сохранить</string>
+    <string name="habit_title_hint">Названиe...</string>
+    <string name="search_hint">Поиск</string>
+    <string name="habit_description_hint">Описаниe...</string>
+    <string name="priority">Приоритет:</string>
+    <string name="low_priority">низкий:</string>
+    <string name="average_priority">средний:</string>
+    <string name="high_priority">высокий:</string>
+    <string name="good_type">хорошая</string>
+    <string name="bad_type">плохая</string>
+    <string name="average_result">средний результат за день</string>
+    <string name="day_first_form">день</string>
+    <string name="day_second_form">дня</string>
+    <string name="day_third_form">дней</string>
+    <string name="count_first_form">раз</string>
+    <string name="count_second_form">раза</string>
+    <string name="number_input_hint">1</string>
+    <string name="tab_indicator">Tab indicator</string>
+    <string name="indicator_left">Indicator left</string>
+    <string name="indicator_right">Indicator right</string>
+    <string name="snackbar_default_message">Couldn\'t save note</string>
+    <string name="information">КОЛИЧЕСТВО ОТСЛЕЖИВАЕМЫХ ПРИВЫЧЕК - %1$d.\nПРИ ЭТОМ ПЛОХИХ ПРИВЫЧЕК - %2$d,\nХОРОШИХ ПРИВЫЧЕК - %3$d.\nСРЕДНЯЯ РЕЗУЛЬТАТИВНОСТЬ
+        ВЫПОЛНЕНИЯ ПРИВЫЧЕК - %4$s.</string>
+    <string name="sort_by">Сортировать по:</string>
+    <string name="sort_cancel_button">Отмена</string>
+    <string name="sort_ok_button">OK</string>
+    <string name="sort_by_date">дате создания</string>
+    <string name="sort_by_priority">приоритету</string>
+    <string name="snackbar_invalid_title_message">Необходимо ввести название</string>
+    <string name="snackbar_invalid_description_message">Необходимо ввести описание</string>
+    <string name="snackbar_invalid_number_of_repetitions">Количество раз должно быть больше 0</string>
+    <string name="snackbar_invalid_number_of_days">Количество дней должно быть больше 0</string>
+    <string name="snackbar_good_habit_message_enough">You are breathtaking!</string>
+    <string name="snackbar_good_habit_message_continue">Стоит выполнить еще %1$d %2$s</string>
+    <string name="snackbar_bad_habit_message_enough">Хватит это делать</string>
+    <string name="snackbar_bad_habit_message_continue">Можете выполнить еще %1$d %2$s</string>
+
 </resources>

@@ -12,14 +12,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.manicpixie.habittracker.presentation.habits_list_screen.components.PriorityStars
@@ -31,13 +27,14 @@ import com.manicpixie.habittracker.R
 
 @Composable
 fun DropDownMenu(
-    selectedPriority:Int,
-    onSelectPriority:(Int) -> Unit
+    selectedPriority: Int,
+    onSelectPriority: (Int) -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
 
-    val suggestions: List<String> = listOf("низкий:", "средний:", "высокий:")
+    val suggestions: List<String> = listOf(stringResource(id = R.string.low_priority),
+        stringResource(id = R.string.average_priority), stringResource(id = R.string.high_priority))
 
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
@@ -66,12 +63,16 @@ fun DropDownMenu(
                     style = MaterialTheme.typography.h4.copy(
                         fontSize = dpToSp(dp = 19.dp)
                     ),
-                    text = "Приоритет:",
+                    text = stringResource(id = R.string.priority),
                     modifier = Modifier
                         .padding(start = 20.dp)
                 )
                 Spacer(modifier = Modifier.width(20.dp))
-                PriorityStars(priority = selectedPriority, modifier = Modifier.padding(top = 2.dp), size = 14.dp)
+                PriorityStars(
+                    priority = selectedPriority,
+                    modifier = Modifier.padding(top = 2.dp),
+                    size = 14.dp
+                )
             }
             IconButton(
                 content = {
@@ -80,7 +81,7 @@ fun DropDownMenu(
                             .size(20.dp)
                             .rotate(if (expanded) 180f else 0f),
                         painter = painterResource(id = R.drawable.down_arrow),
-                        contentDescription = "Down"
+                        contentDescription = stringResource(id = R.string.down_button_description)
                     )
                 },
                 onClick = { expanded = !expanded })
@@ -95,11 +96,10 @@ fun DropDownMenu(
         ) {
             suggestions.forEachIndexed { index, label ->
                 DropdownMenuItem(onClick = {
-                    //selectedPriority = index
                     expanded = false
                     onSelectPriority(index)
                 }) {
-                        MenuItem(label = label, index = index)
+                    MenuItem(label = label, index = index)
 
                 }
             }
@@ -108,12 +108,11 @@ fun DropDownMenu(
 }
 
 
-
 @Composable
 fun MenuItem(
     label: String,
     index: Int
-){
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween

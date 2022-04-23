@@ -21,7 +21,7 @@ import com.manicpixie.habittracker.ui.theme.White
 @Composable
 fun AppSnackBar(
     snackbarData: SnackbarData
-){
+) {
     Card(
         backgroundColor = PrimaryBlack,
         shape = RoundedCornerShape(0.dp),

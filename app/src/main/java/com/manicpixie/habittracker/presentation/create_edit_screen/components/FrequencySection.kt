@@ -13,23 +13,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.manicpixie.habittracker.util.TextFieldState
 import com.manicpixie.habittracker.util.dpToSp
+import com.manicpixie.habittracker.util.setTextForDays
+import com.manicpixie.habittracker.util.setTextForRepetitions
 
 @Composable
 fun FrequencySection(
     numberOfRepetitions: TextFieldState,
     numberOfDays: TextFieldState,
-    onRepetitionsFocusChange:(FocusState) -> Unit,
-    onRepetitionsValueChange:(String) -> Unit,
-    onDaysFocusChange:(FocusState) -> Unit,
-    onDaysValueChange:(String) -> Unit,
+    onRepetitionsFocusChange: (FocusState) -> Unit,
+    onRepetitionsValueChange: (String) -> Unit,
+    onDaysFocusChange: (FocusState) -> Unit,
+    onDaysValueChange: (String) -> Unit,
 
-){
+    ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
         FrequencyInputField(
-            label = "раз",
+            label = setTextForRepetitions(numberOfRepetitions.text),
             textFieldState = numberOfRepetitions,
-            onFocusChange = {onRepetitionsFocusChange(it)},
-            onValueChange = {onRepetitionsValueChange(it)},
+            onFocusChange = { onRepetitionsFocusChange(it) },
+            onValueChange = { onRepetitionsValueChange(it) },
             textStyle = MaterialTheme.typography.h4.copy(
                 fontSize = dpToSp(dp = 17.dp),
                 letterSpacing = 0.04.em
@@ -49,9 +51,9 @@ fun FrequencySection(
         Spacer(modifier = Modifier.width(6.dp))
         FrequencyInputField(
             textFieldState = numberOfDays,
-            label = "дней",
-            onFocusChange = {onDaysFocusChange(it)},
-            onValueChange = {onDaysValueChange(it)},
+            label = setTextForDays(numberOfDays.text),
+            onFocusChange = { onDaysFocusChange(it) },
+            onValueChange = { onDaysValueChange(it) },
             textStyle = MaterialTheme.typography.h4.copy(
                 fontSize = dpToSp(dp = 17.dp),
                 letterSpacing = 0.04.em

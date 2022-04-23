@@ -17,7 +17,7 @@ import com.manicpixie.habittracker.util.clearFocusOnKeyboardDismiss
 
 @Composable
 fun DescriptionBox(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     isHintVisible: Boolean = true,
     hint: String = "",
     text: String = "",
@@ -25,9 +25,11 @@ fun DescriptionBox(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle()
 ) {
-    Box(modifier = modifier.fillMaxSize()
-        //.height(200.dp)
-        .border(width = 1.dp, color = PrimaryBlack)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .border(width = 1.dp, color = PrimaryBlack)
+    ) {
         BasicTextField(
             value = text,
             cursorBrush = SolidColor(PrimaryBlack),

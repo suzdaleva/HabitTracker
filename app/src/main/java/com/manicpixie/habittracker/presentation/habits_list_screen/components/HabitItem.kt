@@ -9,28 +9,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import com.manicpixie.habittracker.data.local.entity.HabitEntity
+import com.manicpixie.habittracker.domain.model.Habit
 import com.manicpixie.habittracker.ui.theme.PrimaryBlack
 import com.manicpixie.habittracker.ui.theme.White
 import com.manicpixie.habittracker.util.AppButton
 import com.manicpixie.habittracker.util.dpToSp
-import kotlin.math.exp
+import com.manicpixie.habittracker.util.formatPercentage
+import com.manicpixie.habittracker.util.setTextForDays
+import com.manicpixie.habittracker.R
+
 
 @Composable
 fun HabitItem(
     expanded: Boolean,
     onEdit: () -> Unit,
     onExpand: () -> Unit,
-   // onDo: () -> Unit,
-    habit: HabitEntity
+    onCountHabit: () -> Unit,
+    habit: Habit
 ) {
     Column(
         modifier = Modifier
-            //.background(White)
             .fillMaxWidth()
             .animateContentSize()
     ) {
@@ -47,7 +49,7 @@ fun HabitItem(
             verticalAlignment = Alignment.Top
         ) {
             Text(
-                text = if(habit.type == 0) "positive" else "negative",
+                text = stringResource(id = if (habit.type == 0) R.string.positive_type_tag else R.string.negative_type_tag),
                 style = MaterialTheme.typography.h3,
                 fontSize = dpToSp(dp = 14.dp)
 
@@ -55,10 +57,11 @@ fun HabitItem(
             Column(
                 horizontalAlignment = Alignment.End
             ) {
-                ProgressBar(progress = 0)
+                ProgressBar(performance = habit.todayPerformance * 100 * habit.targetNumberOfDays.toFloat() / habit.numberOfRepetitions.toFloat())
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
-                    text = habit.frequency.toString(),
+                    text = if (habit.numberOfRepetitions != 0) formatPercentage(habit.todayPerformance * 100 * habit.targetNumberOfDays.toFloat() / habit.numberOfRepetitions.toFloat())
+                    else "0.00%",
                     style = MaterialTheme.typography.h4,
                     fontSize = dpToSp(dp = 14.dp)
 
@@ -78,22 +81,26 @@ fun HabitItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset(0.dp, (-10).dp)
-                .padding(horizontal= 20.dp),
+                .padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-                Text(
-                    text = habit.description,
-                    style = MaterialTheme.typography.body1,
-                    fontSize = dpToSp(dp = 16.dp),
-                    overflow = if (expanded) TextOverflow.Clip else TextOverflow.Ellipsis,
-                    maxLines = if (expanded) Int.MAX_VALUE else 1,
-                    modifier = Modifier.weight(1f).padding(top = 12.dp)
-                )
+            Text(
+                text = habit.description,
+                style = MaterialTheme.typography.body1,
+                fontSize = dpToSp(dp = 16.dp),
+                overflow = if (expanded) TextOverflow.Clip else TextOverflow.Ellipsis,
+                maxLines = if (expanded) Int.MAX_VALUE else 1,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 12.dp)
+            )
             Spacer(modifier = Modifier.width(10.dp))
-            ExpandButton(modifier = Modifier.weight(1f),
+            ExpandButton(
+                modifier = Modifier.weight(1f),
                 expanded = expanded,
-                onClick = onExpand)
+                onClick = onExpand
+            )
         }
         if (expanded) {
             Spacer(
@@ -101,17 +108,23 @@ fun HabitItem(
                     .height(10.dp)
             )
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(verticalArrangement = Arrangement.SpaceBetween) {
-                    PriorityStars(priority = habit.priority, size  = 13.dp)
+                    PriorityStars(priority = habit.priority, size = 13.dp)
                     Spacer(
                         modifier = Modifier
                             .height(7.dp)
                     )
                     Text(
-                        text = "2 х в 4 дня",
+                        text = "${habit.numberOfRepetitions} х за ${habit.targetNumberOfDays} ${
+                            setTextForDays(
+                                habit.targetNumberOfDays.toString()
+                            )
+                        }",
                         style = MaterialTheme.typography.h4.copy(
                             letterSpacing = 0.04.em
                         ),
@@ -122,7 +135,7 @@ fun HabitItem(
                     AppButton(
                         height = 33.dp,
                         width = 142.dp,
-                        buttonText = "Редактировать",
+                        buttonText = stringResource(id = R.string.edit_button_text),
                         backgroundColor = PrimaryBlack,
                         fontColor = White,
                         onClick = onEdit,
@@ -134,10 +147,10 @@ fun HabitItem(
                     AppButton(
                         height = 33.dp,
                         width = 100.dp,
-                        buttonText = "Выполнить",
+                        buttonText = stringResource(id = R.string.perform_button_text),
                         backgroundColor = Color.Transparent,
                         fontColor = PrimaryBlack,
-                        onClick = { /*TODO*/ },
+                        onClick = onCountHabit,
                         fontSize = 14.dp,
                         letterSpacing = 0.03f,
                         borderWidth = 1.2.dp

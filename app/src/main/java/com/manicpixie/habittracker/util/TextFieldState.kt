@@ -1,7 +1,7 @@
 package com.manicpixie.habittracker.util
 
 data class TextFieldState(
-    val text : String = "",
+    val text: String = "",
     val hint: String = "",
-    val isHintVisible : Boolean = true,
+    val isHintVisible: Boolean = true,
 )

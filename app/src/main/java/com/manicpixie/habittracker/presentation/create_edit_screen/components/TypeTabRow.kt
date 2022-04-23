@@ -20,7 +20,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.*
+import com.manicpixie.habittracker.R
 import com.manicpixie.habittracker.ui.theme.PrimaryBlack
 import com.manicpixie.habittracker.ui.theme.White
 import com.manicpixie.habittracker.util.dpToSp
@@ -33,15 +35,16 @@ enum class HabitType {
 
 @Composable
 fun TypeTabRow(
-    backgroundColor: Color,
     habitType: HabitType,
     onTabSelected: (habitType: HabitType) -> Unit,
     modifier: Modifier = Modifier
-){
+) {
 
     val density = LocalDensity.current
-    val goodFontColor = animateColorAsState(targetValue = if(habitType==HabitType.Good) White else PrimaryBlack)
-    val badFontColor = animateColorAsState(targetValue = if(habitType==HabitType.Bad) White else PrimaryBlack)
+    val goodFontColor =
+        animateColorAsState(targetValue = if (habitType == HabitType.Good) White else PrimaryBlack)
+    val badFontColor =
+        animateColorAsState(targetValue = if (habitType == HabitType.Bad) White else PrimaryBlack)
     var sizeTopBar by remember { mutableStateOf(Size.Zero) }
     var isClickedOnce by remember { mutableStateOf(false) }
 
@@ -65,29 +68,29 @@ fun TypeTabRow(
             habitType,
             width = with(density) { sizeTopBar.width.toDp() },
             numberOfTabs = HabitType.values().size,
-            isClickedOnce = isClickedOnce)
+            isClickedOnce = isClickedOnce
+        )
         Row(
             modifier = Modifier
                 .height(38.dp)
-                .fillMaxWidth()
-            ,
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             TypeTab(
                 modifier = Modifier.weight(1f),
-                title = "хорошая",
+                title = stringResource(id = R.string.good_type),
                 onClick = {
-                    if(!isClickedOnce) isClickedOnce = true
+                    if (!isClickedOnce) isClickedOnce = true
                     onTabSelected(HabitType.Good)
                 },
                 fontColor = goodFontColor.value
             )
             TypeTab(
                 modifier = Modifier.weight(1f),
-                title = "плохая",
+                title = stringResource(id = R.string.bad_type),
                 onClick = {
-                    if(!isClickedOnce) isClickedOnce = true
+                    if (!isClickedOnce) isClickedOnce = true
                     onTabSelected(HabitType.Bad)
                 },
                 fontColor = badFontColor.value
@@ -99,16 +102,17 @@ fun TypeTabRow(
 }
 
 
-
 @Composable
 fun TypeTab(
     modifier: Modifier = Modifier,
     title: String,
     onClick: () -> Unit,
     fontColor: Color
-){
-    Box(modifier = modifier.noRippleClickable { onClick() },
-        contentAlignment = Alignment.Center){
+) {
+    Box(
+        modifier = modifier.noRippleClickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
         Text(
             style = MaterialTheme.typography.h4.copy(
                 fontSize = dpToSp(dp = 19.dp),
@@ -120,9 +124,6 @@ fun TypeTab(
 }
 
 
-
-
-
 @Composable
 private fun TabIndicator(
     habitType: HabitType,
@@ -132,7 +133,7 @@ private fun TabIndicator(
 ) {
     val transition = updateTransition(
         habitType,
-        label = "Tab indicator"
+        label = stringResource(id = R.string.tab_indicator)
     )
     val indicatorLeft by transition.animateDp(
         transitionSpec = {
@@ -140,32 +141,28 @@ private fun TabIndicator(
                 spring(stiffness = Spring.StiffnessVeryLow)
 
             } else {
-                if(isClickedOnce) spring(stiffness = Spring.StiffnessMedium)
+                if (isClickedOnce) spring(stiffness = Spring.StiffnessMedium)
                 else snap()
             }
         },
-        label = "Indicator left"
+        label = stringResource(id = R.string.indicator_left)
     ) { page ->
-        page.ordinal * width/numberOfTabs
+        page.ordinal * width / numberOfTabs
     }
     val indicatorRight by transition.animateDp(
         transitionSpec = {
             if (HabitType.Good isTransitioningTo HabitType.Bad) {
                 spring(stiffness = Spring.StiffnessMedium)
             } else {
-                   if(isClickedOnce) spring(stiffness = Spring.StiffnessVeryLow) else
-                snap()
+                if (isClickedOnce) spring(stiffness = Spring.StiffnessVeryLow) else
+                    snap()
             }
         },
-        label = "Indicator right"
+        label = stringResource(id = R.string.indicator_right)
     ) { page ->
-         width/numberOfTabs * (page.ordinal+1)
+        width / numberOfTabs * (page.ordinal + 1)
     }
-//    val color by transition.animateColor(
-//        label = "Border color"
-//    ) { page ->
-//        if (page == HabitType.Good) PrimaryBlack else White
-//    }
+
     Box(
         Modifier
             .fillMaxSize()
