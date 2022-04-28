@@ -57,10 +57,10 @@ fun HabitItem(
             Column(
                 horizontalAlignment = Alignment.End
             ) {
-                ProgressBar(performance = habit.todayPerformance * 100 * habit.targetNumberOfDays.toFloat() / habit.numberOfRepetitions.toFloat())
+                ProgressBar(performance = habit.todayPerformance * 100 * habit.frequency.toFloat() / habit.countPerDay.toFloat())
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
-                    text = if (habit.numberOfRepetitions != 0) formatPercentage(habit.todayPerformance * 100 * habit.targetNumberOfDays.toFloat() / habit.numberOfRepetitions.toFloat())
+                    text = if (habit.countPerDay != 0) formatPercentage(habit.todayPerformance * 100 * habit.frequency.toFloat() / habit.countPerDay.toFloat())
                     else "0.00%",
                     style = MaterialTheme.typography.h4,
                     fontSize = dpToSp(dp = 14.dp)
@@ -120,9 +120,9 @@ fun HabitItem(
                             .height(7.dp)
                     )
                     Text(
-                        text = "${habit.numberOfRepetitions} х за ${habit.targetNumberOfDays} ${
+                        text = "${habit.countPerDay} х за ${habit.frequency} ${
                             setTextForDays(
-                                habit.targetNumberOfDays.toString()
+                                habit.frequency.toString()
                             )
                         }",
                         style = MaterialTheme.typography.h4.copy(

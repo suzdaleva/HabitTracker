@@ -51,6 +51,10 @@ fun HabitsListScreen(
     val habits = habitsListViewModel.habitsListState.value.habits
     val endReached = habitsListViewModel.habitsListState.value.endReached
     val isLoading = habitsListViewModel.habitsListState.value.isLoading
+    val totalCountOfHabits = habitsListViewModel.totalCountOfHabits
+    val numberOfPositiveHabits = habitsListViewModel.numberOfPositiveHabits
+    val numberOfNegativeHabits = habitsListViewModel.numberOfNegativeHabits
+    val totalAveragePerformance = habitsListViewModel.totalAveragePerformance
     var expandedHabit by remember { mutableStateOf<Int?>(null) }
     val snackbarHostState = remember { mutableStateOf(SnackbarHostState()) }
     val toolbarHeight = 70.dp
@@ -217,7 +221,7 @@ fun HabitsListScreen(
 
                 }
                 items(count = habits.size) { index ->
-                    if (index >= habits.size - 1 && !endReached && !isLoading) {
+                    if (index >= habits.size - 1 && !endReached && !isLoading && queryState.text.isBlank()) {
                         habitsListViewModel.onEvent(HabitListEvent.LoadNextItems(currentHabitOrder))
                     }
                     HabitItem(
@@ -306,7 +310,10 @@ fun HabitsListScreen(
                     },
                     informationIconColor = informationIconColor.value,
                     informationButtonColor = informationButtonColor.value,
-                    habits = habits
+                    totalAveragePerformance = totalAveragePerformance.value,
+                    totalCountOfHabits = totalCountOfHabits.value,
+                    numberOfNegativeHabits = numberOfNegativeHabits.value,
+                    numberOfPositiveHabits = numberOfPositiveHabits.value
                 )
             }
 

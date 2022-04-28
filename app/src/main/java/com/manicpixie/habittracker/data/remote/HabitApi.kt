@@ -15,7 +15,6 @@ interface HabitApi {
     suspend fun postHabits(@Body habit: String) : HabitDto
 
 
-
     @Headers("Content-Type: application/json")
     @HTTP(method = "DELETE", path = "habit", hasBody = true)
     suspend fun deleteHabit(@Body uid: String)

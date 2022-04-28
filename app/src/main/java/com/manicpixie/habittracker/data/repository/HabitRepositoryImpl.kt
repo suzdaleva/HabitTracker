@@ -9,6 +9,7 @@ import com.manicpixie.habittracker.data.remote.dto.DeleteDto
 import com.manicpixie.habittracker.data.remote.dto.IncreaseCountDto
 import com.manicpixie.habittracker.domain.repository.HabitRepository
 import com.manicpixie.habittracker.domain.util.HabitOrder
+import com.manicpixie.habittracker.util.setMidnight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -58,14 +59,18 @@ class HabitRepositoryImpl @Inject constructor(
             val gsonDelete = Gson().toJson(delete)
             api.deleteHabit(gsonDelete)
         } catch (e: HttpException) {
-            Log.e("info", "HttpException")
+            Log.e("error", "HttpException")
         } catch (e: IOException) {
-            Log.e("info", "IOException")
+            Log.e("error", "IOException")
         }
     }
 
 
-    override fun getHabits(habitOrder: HabitOrder, listSize: Int): Flow<Result<List<HabitEntity>>> =
+    override fun getHabits(
+        habitOrder: HabitOrder,
+        listSize: Int,
+        query: String
+    ): Flow<Result<List<HabitEntity>>> =
         flow {
             var localHabits = dao.getAllHabits()
             localHabits = when (habitOrder) {
@@ -75,6 +80,11 @@ class HabitRepositoryImpl @Inject constructor(
                 is HabitOrder.ByPriority -> {
                     localHabits.sortedBy { it.priority }.reversed()
                 }
+            }
+            if (query.isNotBlank()) localHabits = localHabits.filter {
+                it.title.lowercase().contains(query) || it.description.lowercase()
+                    .contains(query) ||
+                        it.title.contains(query) || it.description.contains(query)
             }
             emit(Result.success(localHabits.subList(0, listSize)))
         }
@@ -86,51 +96,70 @@ class HabitRepositoryImpl @Inject constructor(
         pageSize: Int,
         shouldUpdateRemote: Boolean
     ): Flow<Result<List<HabitEntity>>> = flow {
-        var localHabits = dao.getAllHabits()
+        val localHabits = dao.getAllHabits()
+
+        //Блок выполняется, если необходимо обновить данные на сервере
         if (shouldUpdateRemote) {
-            val localHabitsUids = localHabits.mapNotNull { it.habitUid }
+            val localHabitsUids = localHabits.map { it.habitUid }
             try {
-                //First delete all undeleted habits from server
-                val remoteHabitsUids = api.getHabits().map { it.uid }
-                remoteHabitsUids.filterNot { localHabitsUids.contains(it) }.onEach { uid ->
-                    val gsonDelete = Gson().toJson(DeleteDto(uid = uid!!))
-                    api.deleteHabit(gsonDelete)
+                val remoteHabits = api.getHabits()
+                //Находим в локальной базе данных привычки, которые редактировали в оффлайн-режиме
+                val uidsToUpdate = remoteHabits.filter {
+                    localHabitsUids.contains(it.uid)
+                }.filter { habitDto ->
+                    habitDto.date < localHabits.filter { it.habitUid == habitDto.uid }[0].dateOfCreation
+                }.map { it.uid }
+
+                //Загружаем на сервер привычки, которые отредактировали или создали оффлайн
+                localHabits.filter {
+                    uidsToUpdate.contains(it.habitUid) || it.habitUid == null
+                }.onEach { habit ->
+                    habit.dateOfCreation = GregorianCalendar.getInstance().also {
+                        it.timeZone = TimeZone.getTimeZone("GMT")
+                    }.timeInMillis
+                    api.postHabits(Gson().toJson(habit.toHabitDto()))
                 }
-                //Then upload on server all new habits and update all existing habits
-                if(api.getHabits().isNotEmpty()) {
-                    localHabits.onEach { habit ->
-                        val postedHabit = api.postHabits(Gson().toJson(habit.toHabitDto()))
-                        habit.habitUid = postedHabit.uid
-                        dao.update(habit)
-                    }
+
+
+                //Очищаем локальную базу данных
+                dao.clear()
+
+                //Загружаем в локальную базу данных привычки с сервера
+                api.getHabits().map { it.toHabitEntity() }.onEach { habit ->
+                    dao.insert(habit)
                 }
-                else {
-                    localHabits.onEach { habit ->
-                        habit.habitUid = null
-                        val postedHabit = api.postHabits(Gson().toJson(habit.toHabitDto()))
-                        habit.habitUid = postedHabit.uid
-                        dao.update(habit)
-                    }
-                }
+
             } catch (e: HttpException) {
+                Log.e("error", "HttpException")
             } catch (e: IOException) {
+                Log.e("error", "IOException")
             }
         }
-        localHabits = when (habitOrder) {
+
+        var updatedLocalHabits = dao.getAllHabits()
+
+        //Блок сортировки
+        updatedLocalHabits = when (habitOrder) {
             is HabitOrder.ByDate -> {
-                localHabits.sortedBy { it.dateOfCreation }.reversed()
+                updatedLocalHabits.sortedBy { it.dateOfCreation }.reversed()
             }
             is HabitOrder.ByPriority -> {
-                localHabits.sortedBy { it.priority }.reversed()
+                updatedLocalHabits.sortedBy { it.priority }.reversed()
             }
         }
+
+        //Блок пагинации
         val startingIndex = page * pageSize
-        if (pageSize >= localHabits.size && startingIndex == 0) emit(Result.success(localHabits))
-        else if (startingIndex + pageSize >= localHabits.size && startingIndex != 0)
-            emit(Result.success(localHabits.slice(startingIndex until localHabits.size)))
-        else if (startingIndex + pageSize < localHabits.size) emit(
+        if (pageSize >= updatedLocalHabits.size && startingIndex == 0) emit(
             Result.success(
-                localHabits.slice(
+                updatedLocalHabits
+            )
+        )
+        else if (startingIndex + pageSize >= updatedLocalHabits.size && startingIndex != 0)
+            emit(Result.success(updatedLocalHabits.slice(startingIndex until updatedLocalHabits.size)))
+        else if (startingIndex + pageSize < updatedLocalHabits.size) emit(
+            Result.success(
+                updatedLocalHabits.slice(
                     startingIndex until startingIndex + pageSize
                 )
             )
@@ -139,14 +168,24 @@ class HabitRepositoryImpl @Inject constructor(
     }
 
 
+    override suspend fun getHabitsInfo(): List<Any> {
+        val totalNumberOfHabits = dao.totalNumberOfHabits()
+        val numberOfNegativeHabits = dao.getAllNegativeHabits().size
+        val numberOfPositiveHabits = dao.getAllPositiveHabits().size
+        val totalAveragePerformance = dao.getAllHabits().map { it.toHabit() }.map { it.averagePerformance }.sum()/totalNumberOfHabits
+        return listOf(totalNumberOfHabits, numberOfNegativeHabits, numberOfPositiveHabits, totalAveragePerformance )
+    }
+
+
     override suspend fun increaseCount(habit: HabitEntity) {
         dao.update(habit)
         try {
             val increaseCount = IncreaseCountDto(
-                date = Calendar.getInstance().timeInMillis.toInt(),
+                date = GregorianCalendar.getInstance().also {
+                    it.timeZone = TimeZone.getTimeZone("GMT")
+                }.setMidnight().timeInMillis,
                 habitUid = "${habit.habitUid}"
             )
-            Log.i("info", "${habit.habitUid}")
             val increaseCountGson = Gson().toJson(increaseCount)
             api.increaseHabitCount(increaseCountGson)
         } catch (e: HttpException) {
@@ -175,7 +214,6 @@ class HabitRepositoryImpl @Inject constructor(
         }
         emit(Result.success(filteredHabits))
     }
-
 
     override suspend fun getHabitByDate(date: Long): HabitEntity {
         return dao.getHabitByDate(date)

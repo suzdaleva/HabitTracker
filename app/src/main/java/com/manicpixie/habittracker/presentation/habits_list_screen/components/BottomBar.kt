@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.manicpixie.habittracker.R
-import com.manicpixie.habittracker.domain.model.Habit
-import com.manicpixie.habittracker.presentation.destinations.CreateEditScreenDestination
 import com.manicpixie.habittracker.ui.theme.PrimaryBlack
 import com.manicpixie.habittracker.ui.theme.White
 import com.manicpixie.habittracker.util.AppButton
@@ -38,7 +36,10 @@ fun BottomBar(
     onInfoClick: () -> Unit,
     informationIconColor: Color,
     informationButtonColor: Color,
-    habits: List<Habit>
+    totalCountOfHabits: Int,
+    numberOfNegativeHabits: Int,
+    numberOfPositiveHabits: Int,
+    totalAveragePerformance: Float
 ) {
     Box(
         modifier = modifier
@@ -48,9 +49,8 @@ fun BottomBar(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        val averagePerformance = if (habits.isNotEmpty())
-            formatPercentage(habits.map { it.averagePerformance }
-                .sum() / habits.size) else "0.00%"
+        val averagePerformance = if (totalCountOfHabits != 0)
+            formatPercentage(totalAveragePerformance) else "0.00%"
         if (showInformationPanel) {
             Text(
                 modifier = Modifier
@@ -61,9 +61,9 @@ fun BottomBar(
                     ),
                 text = stringResource(
                     id = R.string.information,
-                    habits.size,
-                    habits.filter { it.type == 1 }.size,
-                    habits.filter { it.type == 0 }.size,
+                    totalCountOfHabits,
+                    numberOfNegativeHabits,
+                    numberOfPositiveHabits,
                     averagePerformance
                 ),
                 color = PrimaryBlack,

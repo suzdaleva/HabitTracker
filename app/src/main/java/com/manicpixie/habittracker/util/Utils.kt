@@ -42,6 +42,13 @@ class Constants {
     }
 }
 
+val todayDateFormatted = GregorianCalendar.getInstance().also {
+    it.timeZone = TimeZone.getTimeZone("GMT")
+}.setMidnight().timeInMillis
+
+
+
+
 fun enteredPlainText(value: String, textFieldState: TextFieldState): TextFieldState {
     return textFieldState.copy(text = value)
 }

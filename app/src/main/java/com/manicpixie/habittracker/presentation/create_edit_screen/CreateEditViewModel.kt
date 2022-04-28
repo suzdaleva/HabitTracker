@@ -21,7 +21,6 @@ import java.util.*
 import javax.inject.Inject
 
 
-
 @HiltViewModel
 class CreateEditViewModel @Inject constructor(
     private val habitUseCases: HabitUseCases,
@@ -87,18 +86,18 @@ class CreateEditViewModel @Inject constructor(
                 enteredPlainText(receivedHabit.description, habitDescription.value)
             _numberOfRepetitions.value =
                 enteredPlainText(
-                    receivedHabit.numberOfRepetitions.toString(),
+                    receivedHabit.countPerDay.toString(),
                     numberOfRepetitions.value
                 )
             _numberOfDays.value =
-                enteredPlainText(receivedHabit.targetNumberOfDays.toString(), numberOfDays.value)
+                enteredPlainText(receivedHabit.frequency.toString(), numberOfDays.value)
             _habitPriority.value = receivedHabit.priority
             _habitType.value = when (receivedHabit.type) {
                 0 -> HabitType.Good
                 else -> HabitType.Bad
             }
             _averagePerformance.value = receivedHabit.averagePerformance
-            _count.value = receivedHabit.count
+            _count.value = receivedHabit.totalCount
             _numberOfCheckedDays.value = receivedHabit.numberOfCheckedDays
             currentHabit = receivedHabit
 
@@ -114,10 +113,12 @@ class CreateEditViewModel @Inject constructor(
                     description = habitDescription.value.text,
                     type = habitType.value.ordinal,
                     priority = habitPriority.value,
-                    dateOfCreation = Calendar.getInstance().timeInMillis,
-                    count = 0,
-                    numberOfRepetitions = if (numberOfRepetitions.value.text.isNotBlank()) numberOfRepetitions.value.text.toInt() else 1,
-                    targetNumberOfDays = if (numberOfDays.value.text.isNotBlank()) numberOfDays.value.text.toInt() else 1,
+                    dateOfCreation = GregorianCalendar.getInstance().also {
+                        it.timeZone = TimeZone.getTimeZone("GMT")
+                    }.timeInMillis,
+                    totalCount = 0,
+                    countPerDay = if (numberOfRepetitions.value.text.isNotBlank()) numberOfRepetitions.value.text.toInt() else 1,
+                    frequency = if (numberOfDays.value.text.isNotBlank()) numberOfDays.value.text.toInt() else 1,
                     numberOfCheckedDays = 0,
                     averagePerformance = 0.00f,
                     todayPerformance = 0
@@ -129,7 +130,8 @@ class CreateEditViewModel @Inject constructor(
             } catch (e: InvalidHabitException) {
                 _eventFlow.emit(
                     UiEvent.ShowSnackBar(
-                        message = e.message ?: resourceProvider.getString(R.string.snackbar_default_message),
+                        message = e.message
+                            ?: resourceProvider.getString(R.string.snackbar_default_message),
                         buttonText = resourceProvider.getString(R.string.snackbar_button_text)
                     )
                 )
@@ -138,12 +140,12 @@ class CreateEditViewModel @Inject constructor(
     }
 
     private fun deleteHabit() {
-            viewModelScope.launch {
-                if (currentHabit != null){
+        viewModelScope.launch {
+            if (currentHabit != null) {
                 habitUseCases.deleteHabit(currentHabit!!)
                 _eventFlow.emit(UiEvent.SaveNote)
-                } else _eventFlow.emit(UiEvent.SaveNote)
-            }
+            } else _eventFlow.emit(UiEvent.SaveNote)
+        }
     }
 
     private fun updateHabit() {
@@ -154,17 +156,18 @@ class CreateEditViewModel @Inject constructor(
                     description = habitDescription.value.text
                     priority = habitPriority.value
                     type = habitType.value.ordinal
-                    targetNumberOfDays =
+                    frequency =
                         if (numberOfDays.value.text.isNotBlank()) numberOfDays.value.text.toInt() else 0
                 }
-                currentHabit?.numberOfRepetitions =
+                currentHabit?.countPerDay =
                     if (numberOfRepetitions.value.text.isNotBlank()) numberOfRepetitions.value.text.toInt() else 0
                 habitUseCases.updateHabit(currentHabit!!)
                 _eventFlow.emit(UiEvent.SaveNote)
             } catch (e: InvalidHabitException) {
                 _eventFlow.emit(
                     UiEvent.ShowSnackBar(
-                        message = e.message ?: resourceProvider.getString(R.string.snackbar_default_message),
+                        message = e.message
+                            ?: resourceProvider.getString(R.string.snackbar_default_message),
                         buttonText = resourceProvider.getString(R.string.snackbar_button_text)
                     )
                 )

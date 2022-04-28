@@ -10,8 +10,6 @@ class ResourceProvider(
         return context.getString(stringResId)
     }
 
-
-
     fun getContext(): Context {
         return context
     }

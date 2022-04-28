@@ -7,5 +7,6 @@ data class HabitUseCases(
     val increaseHabitCount: IncreaseHabitCount,
     val updateHabit: UpdateHabit,
     val getHabits: GetHabits,
-    val searchHabits: SearchHabits
+    val searchHabits: SearchHabits,
+    val getInfoUseCase: GetInfoUseCase
 )

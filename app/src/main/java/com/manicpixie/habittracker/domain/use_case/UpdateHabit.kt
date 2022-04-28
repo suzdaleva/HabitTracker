@@ -7,6 +7,7 @@ import com.manicpixie.habittracker.domain.util.InvalidHabitException
 import com.manicpixie.habittracker.domain.util.ResourceProvider
 import javax.inject.Inject
 import com.manicpixie.habittracker.R
+import java.util.*
 
 class UpdateHabit @Inject constructor(
     private val repository: HabitRepository,
@@ -19,10 +20,10 @@ class UpdateHabit @Inject constructor(
         if (habit.description.isBlank()) {
             throw InvalidHabitException(resourceProvider.getString(R.string.snackbar_invalid_description_message))
         }
-        if (habit.numberOfRepetitions <= 0) {
+        if (habit.countPerDay <= 0) {
             throw InvalidHabitException(resourceProvider.getString(R.string.snackbar_invalid_number_of_repetitions))
         }
-        if (habit.targetNumberOfDays <= 0) {
+        if (habit.frequency <= 0) {
             throw InvalidHabitException(resourceProvider.getString(R.string.snackbar_invalid_number_of_days))
         }
         val currentHabit = repository.getHabitByDate(habit.dateOfCreation)
@@ -31,8 +32,11 @@ class UpdateHabit @Inject constructor(
             description = habit.description
             priority = habit.priority
             type = habit.type
-            targetNumberOfDays = habit.targetNumberOfDays
-            numberOfRepetitions = habit.numberOfRepetitions
+            frequency = habit.frequency
+            countPerDay = habit.countPerDay
+            dateOfCreation = GregorianCalendar.getInstance().also {
+                it.timeZone = TimeZone.getTimeZone("GMT")
+            }.timeInMillis
         }
         repository.update(habit = currentHabit)
     }

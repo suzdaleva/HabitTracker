@@ -11,9 +11,9 @@ class GetHabits @Inject constructor(
     private val repository: HabitRepository
 ) {
     operator fun invoke(
-        habitOrder: HabitOrder, listSize: Int
+        habitOrder: HabitOrder, listSize: Int, query: String
     ): Flow<Result<List<Habit>>> {
-        return repository.getHabits(habitOrder, listSize).map { result ->
+        return repository.getHabits(habitOrder, listSize, query).map { result ->
             result.map { habits ->
                 habits.map { it.toHabit() }
             }

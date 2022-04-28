@@ -53,7 +53,8 @@ object AppModule {
             loadNextHabits = LoadNextHabits(repository),
             updateHabit = UpdateHabit(repository, resourceProvider),
             getHabits = GetHabits(repository),
-            searchHabits = SearchHabits(repository)
+            searchHabits = SearchHabits(repository),
+            getInfoUseCase = GetInfoUseCase(repository)
         )
     }
 

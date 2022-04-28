@@ -30,6 +30,19 @@ class HabitsListViewModel @Inject constructor(
     private val _habitsListState = mutableStateOf(HabitsListState())
     val habitsListState: State<HabitsListState> = _habitsListState
 
+    private val _totalCountOfHabits = mutableStateOf(0)
+    val totalCountOfHabits: State<Int> = _totalCountOfHabits
+
+    private val _numberOfPositiveHabits = mutableStateOf(0)
+    val numberOfPositiveHabits: State<Int> = _numberOfPositiveHabits
+
+    private val _numberOfNegativeHabits = mutableStateOf(0)
+    val numberOfNegativeHabits: State<Int> = _numberOfNegativeHabits
+
+
+    private val _totalAveragePerformance = mutableStateOf(0f)
+    val totalAveragePerformance: State<Float> = _totalAveragePerformance
+
     private val _searchQuery = mutableStateOf(
         TextFieldState(
             hint = resourceProvider.getString(R.string.search_hint)
@@ -74,9 +87,20 @@ class HabitsListViewModel @Inject constructor(
         loadNextItems(HabitOrder.ByDate, shouldUpdateRemote = true)
     }
 
+    private fun updateHabitsInfo() {
+        viewModelScope.launch {
+            val habitsInfo = habitUseCases.getInfoUseCase()
+            _totalCountOfHabits.value = habitsInfo[0] as Int
+            _numberOfNegativeHabits.value = habitsInfo[1] as Int
+            _numberOfPositiveHabits.value = habitsInfo[2] as Int
+            _totalAveragePerformance.value = habitsInfo[3] as Float
 
-    private fun getHabits(habitOrder: HabitOrder, listSize: Int) {
-        habitUseCases.getHabits(habitOrder, listSize).onEach { result ->
+        }
+    }
+
+
+    private fun getHabits(habitOrder: HabitOrder, listSize: Int, query: String) {
+        habitUseCases.getHabits(habitOrder, listSize, query).onEach { result ->
             _habitsListState.value = habitsListState.value.copy(
                 habits = result.getOrNull() ?: emptyList(),
                 habitOrder = habitOrder
@@ -88,23 +112,31 @@ class HabitsListViewModel @Inject constructor(
     private fun increaseHabitCount(habitOrder: HabitOrder, habit: Habit) {
         viewModelScope.launch {
             habitUseCases.increaseHabitCount(habit)
+            val remainingNumberOfHabits =
+                (habit.countPerDay / habit.frequency) - habit.todayPerformance - 1
             val snackBarMessage = when (habit.type) {
                 HabitType.Good.ordinal -> {
-                    if (habit.todayPerformance < habit.numberOfRepetitions - 1) resourceProvider.getContext().
-                    getString(
-                        R.string.snackbar_good_habit_message_continue,
-                        habit.numberOfRepetitions - habit.todayPerformance - 1,
-                        setTextForRepetitions((habit.numberOfRepetitions - habit.todayPerformance - 1).toString(), resourceProvider.getContext())
-                    )
+                    if (habit.todayPerformance < (habit.countPerDay / habit.frequency - 1)) resourceProvider.getContext()
+                        .getString(
+                            R.string.snackbar_good_habit_message_continue,
+                            remainingNumberOfHabits,
+                            setTextForRepetitions(
+                                remainingNumberOfHabits.toString(),
+                                resourceProvider.getContext()
+                            )
+                        )
                     else resourceProvider.getString(R.string.snackbar_good_habit_message_enough)
                 }
                 else -> {
-                    if (
-                        habit.todayPerformance < habit.numberOfRepetitions - 1) resourceProvider.getContext().getString(
-                        R.string.snackbar_bad_habit_message_continue,
-                        habit.numberOfRepetitions - habit.todayPerformance - 1,
-                        setTextForRepetitions((habit.numberOfRepetitions - habit.todayPerformance - 1).toString(), resourceProvider.getContext())
-                    )
+                    if (habit.todayPerformance < (habit.countPerDay / habit.frequency - 1)) resourceProvider.getContext()
+                        .getString(
+                            R.string.snackbar_bad_habit_message_continue,
+                            remainingNumberOfHabits,
+                            setTextForRepetitions(
+                                remainingNumberOfHabits.toString(),
+                                resourceProvider.getContext()
+                            )
+                        )
                     else resourceProvider.getString(R.string.snackbar_bad_habit_message_enough)
                 }
             }
@@ -114,14 +146,14 @@ class HabitsListViewModel @Inject constructor(
                     buttonText = resourceProvider.getString(R.string.snackbar_button_text)
                 )
             )
-            getHabits(habitOrder, habitsListState.value.habits.size)
+            getHabits(habitOrder, habitsListState.value.habits.size, searchQuery.value.text)
         }
     }
 
 
     private fun searchHabits(query: String, habitOrder: HabitOrder) {
         cancelJob()
-        job = habitUseCases.searchHabits(habitOrder, query).onEach { result ->
+        habitUseCases.searchHabits(habitOrder, query).onEach { result ->
             _habitsListState.value = habitsListState.value.copy(
                 habits = result.getOrNull() ?: emptyList(),
                 habitOrder = habitOrder,
@@ -146,6 +178,7 @@ class HabitsListViewModel @Inject constructor(
             }
             is HabitListEvent.CountHabit -> {
                 increaseHabitCount(event.habitOrder, event.habit)
+                updateHabitsInfo()
             }
             is HabitListEvent.Sort -> {
                 if (habitsListState.value.habitOrder::class == event.habitOrder::class) return
@@ -157,6 +190,7 @@ class HabitsListViewModel @Inject constructor(
             }
             is HabitListEvent.LoadNextItems -> {
                 loadNextItems(event.habitOrder, shouldUpdateRemote = true)
+                updateHabitsInfo()
             }
         }
 
@@ -181,6 +215,7 @@ class HabitsListViewModel @Inject constructor(
         cancelJob()
         job = viewModelScope.launch {
             paginator.loadNextItems(habitOrder, shouldUpdateRemote)
+            updateHabitsInfo()
         }
     }
 

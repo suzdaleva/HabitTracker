@@ -6,9 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.manicpixie.habittracker.data.remote.dto.HabitDto
 import com.manicpixie.habittracker.domain.model.Habit
-import com.manicpixie.habittracker.util.setMidnight
-import java.util.*
-import kotlin.math.roundToInt
+import com.manicpixie.habittracker.util.todayDateFormatted
 
 
 @Entity
@@ -24,13 +22,13 @@ data class HabitEntity(
     @ColumnInfo(name = "habit_type")
     var type: Int,
     @ColumnInfo(name = "habit_number_of_repetitions")
-    var numberOfRepetitions: Int,
+    var countPerDay: Int,
     @ColumnInfo(name = "habit_target_number_of_days")
-    var targetNumberOfDays: Int,
+    var frequency: Int,
     @ColumnInfo(name = "done_dates")
     val doneDates: MutableMap<Long, Int>,
     @ColumnInfo(name = "habit_date_of_creation")
-    val dateOfCreation: Long,
+    var dateOfCreation: Long,
     @ColumnInfo(name = "habit_uid")
     var habitUid: String? = null
 ) {
@@ -40,16 +38,17 @@ data class HabitEntity(
             description = description,
             priority = priority,
             type = type,
-            count = if (doneDates.isEmpty()) 0 else doneDates.values.sum(),
+            countPerDay = countPerDay,
             dateOfCreation = dateOfCreation,
-            numberOfRepetitions = numberOfRepetitions,
-            targetNumberOfDays = targetNumberOfDays,
-            averagePerformance = if (doneDates.isNotEmpty()) (doneDates.values.sum()
-                .toFloat() * targetNumberOfDays.toFloat()) * 100 / (doneDates.size.toFloat() * numberOfRepetitions.toFloat()) else 0f,
+            totalCount = if (doneDates.isEmpty()) 0 else doneDates.values.sum(),
+            frequency = frequency,
+            averagePerformance =
+            if (doneDates.isNotEmpty()) (doneDates.values.sum()
+                .toFloat() * frequency.toFloat()) * 100 / (doneDates.size.toFloat() * countPerDay.toFloat()) else 0f,
             todayPerformance = if (doneDates.isNotEmpty() &&
-                doneDates.containsKey(Calendar.getInstance().setMidnight().timeInMillis)
+                doneDates.containsKey(todayDateFormatted)
             )
-                doneDates[Calendar.getInstance().setMidnight().timeInMillis]!! else 0,
+                doneDates[todayDateFormatted]!! else 0,
             numberOfCheckedDays = if (doneDates.isEmpty()) 0 else doneDates.size,
         )
     }
@@ -60,10 +59,9 @@ data class HabitEntity(
             description = description,
             priority = priority,
             type = type,
-            count = if (doneDates.isEmpty()) 0 else doneDates.values.sum(),
-            date = Calendar.getInstance().timeInMillis.toInt(),
-            frequency = if (targetNumberOfDays != 0) (numberOfRepetitions.toFloat() / targetNumberOfDays.toFloat()).roundToInt()
-            else numberOfRepetitions,
+            count = countPerDay,
+            date = dateOfCreation,
+            frequency = frequency,
             doneDates = emptyList(),
             uid = habitUid
         )

@@ -22,10 +22,10 @@ class AddHabit @Inject constructor(
         if (habit.description.isBlank()) {
             throw InvalidHabitException(resourceProvider.getString(R.string.snackbar_invalid_description_message))
         }
-        if (habit.numberOfRepetitions <= 0) {
+        if (habit.countPerDay <= 0) {
             throw InvalidHabitException(resourceProvider.getString(R.string.snackbar_invalid_number_of_repetitions))
         }
-        if (habit.targetNumberOfDays <= 0) {
+        if (habit.frequency <= 0) {
             throw InvalidHabitException(resourceProvider.getString(R.string.snackbar_invalid_number_of_days))
         }
         val newHabit = HabitEntity(
@@ -33,8 +33,8 @@ class AddHabit @Inject constructor(
             description = habit.description,
             priority = habit.priority,
             type = habit.type,
-            numberOfRepetitions = habit.numberOfRepetitions,
-            targetNumberOfDays = habit.targetNumberOfDays,
+            countPerDay = habit.countPerDay,
+            frequency = habit.frequency,
             doneDates = mutableMapOf(),
             dateOfCreation = habit.dateOfCreation
         )

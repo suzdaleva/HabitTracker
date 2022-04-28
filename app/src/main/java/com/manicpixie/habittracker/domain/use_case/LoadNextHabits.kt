@@ -21,7 +21,10 @@ class LoadNextHabits @Inject constructor(
         return repository.loadNextHabits(habitOrder, page, pageSize, shouldUpdateRemote)
             .map { result ->
                 result.map { habits ->
-                    habits.map { it.toHabit() }
+                    habits.map {
+
+                        it.toHabit()
+                    }
 
                 }
             }
